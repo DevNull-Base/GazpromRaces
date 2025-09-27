@@ -4,18 +4,18 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TestView : MonoBehaviour
+public class QuizView : MonoBehaviour
 {
-    [SerializeField] private TestLogic logic;
+    [SerializeField] private QuizLogic logic;
     [SerializeField] private TMP_Text questionText;
     [SerializeField] private Button[] answerButtons;
 
-    private void Awake()
+    private void OnEnable()
     {
         logic.OnQuestionChanged += RenderQuestion;
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         logic.OnQuestionChanged -= RenderQuestion;
     }

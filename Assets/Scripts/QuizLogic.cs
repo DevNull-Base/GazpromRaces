@@ -2,7 +2,7 @@
 using Data;
 using UnityEngine;
 
-public class TestLogic : MonoBehaviour
+public class QuizLogic : MonoBehaviour
 {
     [SerializeField] private TestData testData;
     private int currentQuestion = 0;
@@ -13,8 +13,15 @@ public class TestLogic : MonoBehaviour
     public event Action OnCorrectAnswer;
     public event Action OnWrongAnswer;
 
-    private void Start()
+    private void Awake()
     {
+        ShowQuestion();
+        OnTestStarted?.Invoke();
+    }
+
+    private void OnEnable()
+    {
+        currentQuestion = 0;
         ShowQuestion();
         OnTestStarted?.Invoke();
     }
@@ -24,6 +31,7 @@ public class TestLogic : MonoBehaviour
         if (currentQuestion >= testData.questions.Length)
         {
             OnTestFinished?.Invoke();
+            ScreenManager.Instance.OpenScreen(ScreenTypes.Look);
             return;
         }
 

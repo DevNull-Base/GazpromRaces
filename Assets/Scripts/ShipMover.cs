@@ -1,14 +1,16 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.Splines;
 
 public class ShipMover : MonoBehaviour
 {
     [Header("Spline")]
-    public SplineContainer spline;
-    [Range(0f, 1f)]
-    public float normalizedPosition = 0f;
+    public SplineContainer spline; 
+    public float NormalizedPosition {get; private set;}
+    public event Action<float> OnProgressChanged;
+    public event Action OnRaceEnding;
 
     [Header("Движение")]
     public float baseSpeed = 5f;
@@ -27,10 +29,11 @@ public class ShipMover : MonoBehaviour
     private float currentSpeed = 0f;
     private bool boosting = false;
     private bool isStaring = false;
+    
 
     public void StartingRace()
     {
-        normalizedPosition = 0f;
+        NormalizedPosition = 0f;
         currentSpeed = baseSpeed;
         isStaring = true;
     }
@@ -38,7 +41,8 @@ public class ShipMover : MonoBehaviour
     public void EndingRace()
     {
         isStaring = false;
-        normalizedPosition = 0f;
+        StopAllCoroutines();
+        NormalizedPosition = 0f;
         currentSpeed = baseSpeed;
     }
 
@@ -51,20 +55,21 @@ public class ShipMover : MonoBehaviour
         // --- движение вдоль кривой ---
         float splineLength = spline.CalculateLength();
         float deltaT = (currentSpeed / splineLength) * Time.deltaTime;
+        
+        NormalizedPosition += deltaT;
 
-        normalizedPosition += deltaT;
-        if (loop)
+        if (NormalizedPosition > 1f)
         {
-            if (normalizedPosition > 1f)
-                normalizedPosition -= 1f;
+            OnRaceEnding?.Invoke();
+            EndingRace();
         }
-        else
-        {
-            normalizedPosition = Mathf.Clamp01(normalizedPosition);
-        }
+        
+        
+        OnProgressChanged?.Invoke(NormalizedPosition);
+        NormalizedPosition = Mathf.Clamp01(NormalizedPosition);
 
-        Vector3 pos = spline.EvaluatePosition(normalizedPosition);
-        Vector3 tangent = spline.EvaluateTangent(normalizedPosition);
+        Vector3 pos = spline.EvaluatePosition(NormalizedPosition);
+        Vector3 tangent = spline.EvaluateTangent(NormalizedPosition);
         tangent.Normalize();
 
         transform.position = pos;
@@ -101,10 +106,15 @@ public class ShipMover : MonoBehaviour
         transform.rotation *= Quaternion.Euler(0, 0, currentBank);
     }
     
+    public void BoostToEnd(float multiplier)
+    {
+        StopAllCoroutines();
+        currentSpeed = baseSpeed * multiplier;
+    }
+    
     public void Boost(float duration, float multiplier)
     {
-        if (!boosting)
-            StartCoroutine(BoostRoutine(duration, multiplier));
+        if (!boosting) StartCoroutine(BoostRoutine(duration, multiplier));
     }
 
     private IEnumerator BoostRoutine(float time, float multiplier)
