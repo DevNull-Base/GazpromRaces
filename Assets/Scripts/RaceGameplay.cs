@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 
 public class RaceGameplay : MonoBehaviour
 {
-    [FormerlySerializedAs("testLogic")] [SerializeField] private QuizLogic quizLogic;
+    [SerializeField] private QuizLogic quizLogic;
     [SerializeField] private ShipMover playerShip;
     [SerializeField] private ShipMover enemyShip;
     [SerializeField] private float boostMultiplier = 2f;
