@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Splines;
 
@@ -9,11 +11,11 @@ public class ShipMover : MonoBehaviour
     public float normalizedPosition = 0f;
 
     [Header("Движение")]
-    public float moveSpeed = 5f;
+    public float baseSpeed = 5f;
     public float rotationSpeed = 5f;
     public bool loop = true;
 
-    [Header("Реализм")]
+    [Header("Крен")]
     public float bankAngle = 30f;       // максимальный угол крена
     public float bankSmooth = 2f;       // скорость выравнивания крена
     public float bankDeadZone = 0.05f;  // зона "прямо", где крен = 0
@@ -22,13 +24,33 @@ public class ShipMover : MonoBehaviour
     private float currentBank = 0f;
     private float bankVelocity = 0f;    // для SmoothDamp
 
+    private float currentSpeed = 0f;
+    private bool boosting = false;
+    private bool isStaring = false;
+
+    public void StartingRace()
+    {
+        normalizedPosition = 0f;
+        currentSpeed = baseSpeed;
+        isStaring = true;
+    }
+    
+    public void EndingRace()
+    {
+        isStaring = false;
+        normalizedPosition = 0f;
+        currentSpeed = baseSpeed;
+    }
+
     void Update()
     {
+        if (!isStaring) return;
+        
         if (spline == null) return;
 
         // --- движение вдоль кривой ---
         float splineLength = spline.CalculateLength();
-        float deltaT = (moveSpeed / splineLength) * Time.deltaTime;
+        float deltaT = (currentSpeed / splineLength) * Time.deltaTime;
 
         normalizedPosition += deltaT;
         if (loop)
@@ -77,5 +99,20 @@ public class ShipMover : MonoBehaviour
 
         // Применяем крен
         transform.rotation *= Quaternion.Euler(0, 0, currentBank);
+    }
+    
+    public void Boost(float duration, float multiplier)
+    {
+        if (!boosting)
+            StartCoroutine(BoostRoutine(duration, multiplier));
+    }
+
+    private IEnumerator BoostRoutine(float time, float multiplier)
+    {
+        boosting = true;
+        currentSpeed = baseSpeed * multiplier;
+        yield return new WaitForSeconds(time);
+        currentSpeed = baseSpeed;
+        boosting = false;
     }
 }

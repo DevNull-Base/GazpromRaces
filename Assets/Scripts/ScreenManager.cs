@@ -29,7 +29,7 @@ public class ScreenManager : PersistentSingleton<ScreenManager>
             s.UI.SetActive(false);
         }
 
-        OpenScreen(ScreenTypes.Bootstrap);
+        OpenScreen(ScreenTypes.Menu);
     }
 
     public void OpenScreen(int id)

@@ -463,7 +463,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShipMover
   spline: {fileID: 1378762674}
   normalizedPosition: 0
-  moveSpeed: 10
+  baseSpeed: 5
   rotationSpeed: 5
   loop: 1
   bankAngle: 30
@@ -927,7 +927,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 167889826}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2146446166}
+        m_TargetAssemblyTypeName: ScreenManager, Assembly-CSharp
+        m_MethodName: OpenScreen
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &167889826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1717,7 +1729,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.19247691, y: 0.36559075, z: -0.07755319, w: 0.90734863}
+  m_LocalRotation: {x: 0.274442, y: 0.3569923, z: -0.110578746, w: 0.8860082}
   m_LocalPosition: {x: -8.74, y: 4.87, z: -7.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1936,6 +1948,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 348086322}
   m_CullTransparentMesh: 1
+--- !u!1 &387566286
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 387566287}
+  - component: {fileID: 387566288}
+  m_Layer: 0
+  m_Name: GameCore
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &387566287
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387566286}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.75478, y: 0, z: 1.54765}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &387566288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387566286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99b0cb4b21c64c85825c2145240912ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RaceGameplay
+  testLogic: {fileID: 910397637}
+  playerShip: {fileID: 1074298669}
+  enemyShip: {fileID: 111538553}
+  boostMultiplier: 2
+  boostTime: 2
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -3234,8 +3295,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 910397636}
+  - component: {fileID: 910397638}
+  - component: {fileID: 910397637}
   m_Layer: 5
-  m_Name: QWIZ - Game
+  m_Name: Quiz - Game
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3262,6 +3325,37 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &910397637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910397635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab7a998c497457fabda9cb3775085ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TestLogic
+  testData: {fileID: 11400000, guid: a3c3a33c53b0595459558795ea3c76cd, type: 2}
+--- !u!114 &910397638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910397635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be19479314f54fde9a3bc665c1c6ff01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TestView
+  logic: {fileID: 910397637}
+  questionText: {fileID: 579590863}
+  answerButtons:
+  - {fileID: 272067295}
+  - {fileID: 1724966173}
+  - {fileID: 91462559}
 --- !u!1 &1074298667
 GameObject:
   m_ObjectHideFlags: 0
@@ -3309,7 +3403,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShipMover
   spline: {fileID: 33435975}
   normalizedPosition: 0
-  moveSpeed: 10
+  baseSpeed: 5
   rotationSpeed: 5
   loop: 1
   bankAngle: 30
@@ -3545,6 +3639,7 @@ GameObject:
   - component: {fileID: 1220939978}
   - component: {fileID: 1220939977}
   - component: {fileID: 1220939976}
+  - component: {fileID: 1220939979}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -3615,7 +3710,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1220939977}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2146446166}
+        m_TargetAssemblyTypeName: ScreenManager, Assembly-CSharp
+        m_MethodName: OpenScreen
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1220939977
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3654,6 +3761,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1220939974}
   m_CullTransparentMesh: 1
+--- !u!114 &1220939979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1220939974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ae6f030796e4f7e9be56e21db8317b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CommandButton
 --- !u!1 &1231426682
 GameObject:
   m_ObjectHideFlags: 0
@@ -10393,7 +10512,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2044581665}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.19247691, y: 0.36559078, z: -0.0775532, w: 0.90734863}
+  m_LocalRotation: {x: 0.27444196, y: 0.35699227, z: -0.11057872, w: 0.8860082}
   m_LocalPosition: {x: -8.74, y: 4.87, z: -7.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -10413,7 +10532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineRotationComposer
   Composition:
-    ScreenPosition: {x: 0, y: 0}
+    ScreenPosition: {x: 0, y: -0.16}
     DeadZone:
       Enabled: 0
       Size: {x: 0.2, y: 0.2}
@@ -10562,6 +10681,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2146446165}
+  - component: {fileID: 2146446166}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -10585,6 +10705,28 @@ Transform:
   - {fileID: 656368865}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2146446166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2146446164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34f291c97b042668ac67e6a9673e52e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenManager
+  AutoUnparentOnAwake: 1
+  screens:
+  - UI: {fileID: 1506500102}
+    type: 1
+  - UI: {fileID: 244829800}
+    type: 10
+  - UI: {fileID: 673102264}
+    type: 2
+  - UI: {fileID: 910397635}
+    type: 3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -10601,3 +10743,4 @@ SceneRoots:
   - {fileID: 2044581667}
   - {fileID: 2146446165}
   - {fileID: 624068044}
+  - {fileID: 387566287}
