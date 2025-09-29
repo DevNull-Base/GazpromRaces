@@ -7,33 +7,32 @@ using UnityEngine.Splines;
 public class ShipMover : MonoBehaviour
 {
     [Header("Spline")]
-    public SplineContainer spline; 
-    public float NormalizedPosition {get; private set;}
+    public SplineContainer spline;
+    [SerializeField] private float normalizedPosition;
     public event Action<float> OnProgressChanged;
     public event Action OnRaceEnding;
 
     [Header("Движение")]
-    public float baseSpeed = 5f;
-    public float rotationSpeed = 5f;
-    public bool loop = true;
+    [SerializeField] private float baseSpeed = 5f;
+    [SerializeField] private float rotationSpeed = 5f;
+    [SerializeField] private bool loop = true;
 
     [Header("Крен")]
-    public float bankAngle = 30f;       // максимальный угол крена
-    public float bankSmooth = 2f;       // скорость выравнивания крена
-    public float bankDeadZone = 0.05f;  // зона "прямо", где крен = 0
-    public float bankMin = 1f;          // минимальный угол, ниже которого крен обнуляется
+    [SerializeField] private float bankAngle = 30f;       // максимальный угол крена
+    [SerializeField] private float bankSmooth = 2f;       // скорость выравнивания крена
+    [SerializeField] private float bankDeadZone = 0.05f;  // зона "прямо", где крен = 0
+    [SerializeField] private float bankMin = 1f;          // минимальный угол, ниже которого крен обнуляется
 
     private float currentBank = 0f;
-    private float bankVelocity = 0f;    // для SmoothDamp
+    private float bankVelocity = 0f;   
 
     private float currentSpeed = 0f;
     private bool boosting = false;
     private bool isStaring = false;
-    
 
     public void StartingRace()
     {
-        NormalizedPosition = 0f;
+        normalizedPosition = 0f;
         currentSpeed = baseSpeed;
         isStaring = true;
     }
@@ -42,7 +41,7 @@ public class ShipMover : MonoBehaviour
     {
         isStaring = false;
         StopAllCoroutines();
-        NormalizedPosition = 0f;
+        normalizedPosition = 0f;
         currentSpeed = baseSpeed;
     }
 
@@ -56,20 +55,20 @@ public class ShipMover : MonoBehaviour
         float splineLength = spline.CalculateLength();
         float deltaT = (currentSpeed / splineLength) * Time.deltaTime;
         
-        NormalizedPosition += deltaT;
+        normalizedPosition += deltaT;
 
-        if (NormalizedPosition > 1f)
+        if (normalizedPosition > 1f)
         {
             OnRaceEnding?.Invoke();
             EndingRace();
         }
         
         
-        OnProgressChanged?.Invoke(NormalizedPosition);
-        NormalizedPosition = Mathf.Clamp01(NormalizedPosition);
+        OnProgressChanged?.Invoke(normalizedPosition);
+        normalizedPosition = Mathf.Clamp01(normalizedPosition);
 
-        Vector3 pos = spline.EvaluatePosition(NormalizedPosition);
-        Vector3 tangent = spline.EvaluateTangent(NormalizedPosition);
+        Vector3 pos = spline.EvaluatePosition(normalizedPosition);
+        Vector3 tangent = spline.EvaluateTangent(normalizedPosition);
         tangent.Normalize();
 
         transform.position = pos;
