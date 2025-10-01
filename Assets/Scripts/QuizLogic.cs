@@ -42,7 +42,7 @@ public class QuizLogic : MonoBehaviour
     private void StartSession()
     {
         currentSessionQuestions = new List<Question>();
-        currentSessionQuestions = testData.questions.OrderBy(x => Random.value).Take(questionsPerSession).ToList();
+        currentSessionQuestions = GetRandomQuestions(questionsPerSession);
         currentQuestionIndex = 0;
         NextQuestion();
     }
@@ -90,6 +90,24 @@ public class QuizLogic : MonoBehaviour
         OnHideQuestionPanel?.Invoke();
         StartCoroutine(WaitAndNextQuestion());
     }
+    
+    private List<Question> GetRandomQuestions(int count)
+    {
+        var availableQuestions = testData.questions.ToList();
+        var selectedQuestions = new List<Question>();
+    
+        count = Mathf.Min(count, availableQuestions.Count);
+    
+        for (int i = 0; i < count; i++)
+        {
+            int randomIndex = Random.Range(0, availableQuestions.Count);
+            selectedQuestions.Add(availableQuestions[randomIndex]);
+            availableQuestions.RemoveAt(randomIndex);
+        }
+    
+        return selectedQuestions;
+    }
+
     
     private IEnumerator WaitAndNextQuestion()
     {
