@@ -8,32 +8,46 @@ public class ShipMover : MonoBehaviour
 {
     [Header("Spline")]
     public SplineContainer spline;
-    public float NormalizedPosition { get; private set; }
+    [SerializeField] private bool loop = true;
+    
     public event Action<float> OnProgressChanged;
     public event Action OnRaceEnding;
 
     [Header("Движение")]
-    [SerializeField] private float baseSpeed = 5f;
-    [SerializeField] private float rotationSpeed = 5f;
-    [SerializeField] private bool loop = true;
+    [SerializeField] private float maxSpeed = 4f;
+    [SerializeField] private float currentSpeed = 4f;
+    [SerializeField] private float acceleration = 2f;
+    [SerializeField] private float deceleration = 3f;
+    private float targetSpeed = 0f;
+    [SerializeField] private float defaultSpeed = 4f;
 
+    [Header("Вращение")]
+    [SerializeField] private float rotationSpeed = 3f;
+    private Quaternion targetRotation;
+    
     [Header("Крен")]
-    [SerializeField] private float bankAngle = 30f;       // максимальный угол крена
-    [SerializeField] private float bankSmooth = 2f;       // скорость выравнивания крена
-    [SerializeField] private float bankDeadZone = 0.05f;  // зона "прямо", где крен = 0
-    [SerializeField] private float bankMin = 1f;          // минимальный угол, ниже которого крен обнуляется
-
+    [SerializeField] private float bankAngle = 30f;
+    [SerializeField] private float bankDeadZone = 0.1f;
+    [SerializeField] private float bankSmooth = 5f;
+    [SerializeField] private float bankReturnSpeed = 2f;
     private float currentBank = 0f;
-    private float bankVelocity = 0f;   
+    private float bankVelocity = 0f;         // минимальный угол, ниже которого крен обнуляется
 
-    private float currentSpeed = 0f;
+    [Header("Progress")]
+    [SerializeField] [Range(0f, 1f)] private float normalizedPosition = 0f;
+    public float NormalizedPosition 
+    { 
+        get => normalizedPosition; 
+        set => normalizedPosition = Mathf.Clamp01(value); 
+    }
+    
     private bool boosting = false;
     private bool isStaring = false;
 
     public void StartingRace()
     {
         NormalizedPosition = 0f;
-        currentSpeed = baseSpeed;
+        maxSpeed = defaultSpeed;
         boosting = false;
         isStaring = true;
     }
@@ -43,73 +57,126 @@ public class ShipMover : MonoBehaviour
         isStaring = false;
         StopAllCoroutines();
         NormalizedPosition = 0f;
-        currentSpeed = baseSpeed;
+        maxSpeed = defaultSpeed;
+    }
+    
+     void Update()
+    {
+        if (spline == null) return;
+        if (!isStaring) return;
+
+        HandleMovement();
+        HandleRotation();
+        HandleBanking();
     }
 
-    void Update()
+    private void HandleMovement()
     {
-        if (!isStaring) return;
+        targetSpeed = isStaring ? maxSpeed : 0f;
+        currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, 
+            (currentSpeed < targetSpeed ? acceleration : deceleration) * Time.deltaTime);
         
-        if (spline == null) return;
+        if (currentSpeed <= 0.01f) return;
 
-        // --- движение вдоль кривой ---
+        // Движение вдоль кривой с плавным ускорением
         float splineLength = spline.CalculateLength();
         float deltaT = (currentSpeed / splineLength) * Time.deltaTime;
         
+        float previousPosition = NormalizedPosition;
         NormalizedPosition += deltaT;
 
-        if (NormalizedPosition > 1f)
+        if (NormalizedPosition >= 1f)
         {
+            NormalizedPosition = 1f;
             OnRaceEnding?.Invoke();
-            EndingRace();
+            return;
         }
-        
-        
-        OnProgressChanged?.Invoke(NormalizedPosition);
-        NormalizedPosition = Mathf.Clamp01(NormalizedPosition);
 
-        Vector3 pos = spline.EvaluatePosition(NormalizedPosition);
-        Vector3 tangent = spline.EvaluateTangent(NormalizedPosition);
-        tangent.Normalize();
-
-        transform.position = pos;
-
-        // --- ориентация вдоль касательной ---
-        if (tangent != Vector3.zero)
+        // Вызов события только при реальном изменении позиции
+        if (!Mathf.Approximately(previousPosition, NormalizedPosition))
         {
-            Quaternion targetRot = Quaternion.LookRotation(tangent, Vector3.up);
+            OnProgressChanged?.Invoke(NormalizedPosition);
+        }
+
+        // Плавное обновление позиции
+        Vector3 targetPos = spline.EvaluatePosition(NormalizedPosition);
+        transform.position = Vector3.Lerp(transform.position, targetPos, 10f * Time.deltaTime);
+    }
+
+    private void HandleRotation()
+    {
+        if (spline == null) return;
+
+        Vector3 tangent = spline.EvaluateTangent(NormalizedPosition);
+        if (tangent.sqrMagnitude > 0.001f)
+        {
+            tangent.Normalize();
+            
+            // Плавное определение целевого вращения
+            targetRotation = Quaternion.LookRotation(tangent, Vector3.up);
+            
+            // Используем Slerp для плавного вращения
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
-                targetRot,
+                targetRotation,
                 rotationSpeed * Time.deltaTime
             );
         }
+    }
 
-        // --- расчет крена ---
+    private void HandleBanking()
+    {
+        if (spline == null) return;
+
+        Vector3 tangent = spline.EvaluateTangent(NormalizedPosition);
         Vector3 localTangent = transform.InverseTransformDirection(tangent);
-        float side = -localTangent.x; // влево/вправо
+        
+        float side = -localTangent.x;
         float targetBank = 0f;
 
+        // Учет мертвой зоны и плавное определение целевого крена
         if (Mathf.Abs(side) > bankDeadZone)
         {
             targetBank = Mathf.Clamp(side * bankAngle, -bankAngle, bankAngle);
         }
+        else
+        {
+            // Плавный возврат к нулю при маленьких значениях
+            targetBank = 0f;
+        }
 
-        // Плавное сглаживание крена
-        currentBank = Mathf.SmoothDamp(currentBank, targetBank, ref bankVelocity, 1f / bankSmooth);
+        // Двойное сглаживание: SmoothDamp + дополнительный Lerp для большей плавности
+        float smoothedTargetBank = Mathf.SmoothDamp(
+            currentBank, 
+            targetBank, 
+            ref bankVelocity, 
+            1f / bankSmooth
+        );
 
-        // Убираем мелкие колебания
-        if (Mathf.Abs(currentBank) < bankMin)
-            currentBank = 0f;
+        // Дополнительное сглаживание для возврата в нулевое положение
+        if (Mathf.Abs(targetBank) < 1f)
+        {
+            smoothedTargetBank = Mathf.Lerp(
+                currentBank, 
+                targetBank, 
+                bankReturnSpeed * Time.deltaTime
+            );
+        }
 
-        // Применяем крен
-        transform.rotation *= Quaternion.Euler(0, 0, currentBank);
+        currentBank = smoothedTargetBank;
+
+        // Применяем крен к текущему вращению
+        if (Mathf.Abs(currentBank) > 0.01f)
+        {
+            transform.rotation *= Quaternion.Euler(0, 0, currentBank * Time.deltaTime * 5f);
+        }
     }
+
     
     public void BoostToEnd(float multiplier)
     {
         StopAllCoroutines();
-        currentSpeed = baseSpeed * multiplier;
+        maxSpeed = defaultSpeed * multiplier;
     }
     
     public void Boost(BoostConfig config)
@@ -120,32 +187,9 @@ public class ShipMover : MonoBehaviour
     private IEnumerator BoostRoutine(float time, float multiplier)
     {
         boosting = true;
-    
-        float halfTime = time * 0.5f;
-        float startSpeed = baseSpeed;
-        float targetSpeed = baseSpeed * multiplier;
-    
-        // Плавное ускорение
-        float timer = 0f;
-        while (timer < halfTime)
-        {
-            timer += Time.deltaTime;
-            float t = timer / halfTime;
-            currentSpeed = Mathf.Lerp(startSpeed, targetSpeed, Mathf.SmoothStep(0f, 1f, t));
-            yield return null;
-        }
-    
-        // Плавное замедление
-        timer = 0f;
-        while (timer < halfTime)
-        {
-            timer += Time.deltaTime;
-            float t = timer / halfTime;
-            currentSpeed = Mathf.Lerp(targetSpeed, startSpeed, Mathf.SmoothStep(0f, 1f, t));
-            yield return null;
-        }
-    
-        currentSpeed = baseSpeed;
+        maxSpeed = defaultSpeed * multiplier;
+        yield return new WaitForSeconds(time);
+        maxSpeed = defaultSpeed;
         boosting = false;
     }
 }

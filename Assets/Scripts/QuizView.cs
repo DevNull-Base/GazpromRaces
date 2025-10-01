@@ -74,6 +74,7 @@ public class QuizView : MonoBehaviour
         {
             panel.DOFade(0f, 0.1f).SetEase(Ease.OutCubic);
             panel.transform.DOScale(0.8f, 0.5f).SetEase(Ease.OutCubic);
+            panel.gameObject.SetActive(false);
         }
     }
 
@@ -81,6 +82,7 @@ public class QuizView : MonoBehaviour
     {
         if (panel != null)
         {
+            panel.gameObject.SetActive(true);
             panel.DOFade(1f, 0.1f).SetEase(Ease.OutCubic);
             panel.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
         }
