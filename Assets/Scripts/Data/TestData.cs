@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Data
 {
@@ -8,11 +9,15 @@ namespace Data
         public Question[] questions;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class Question
     {
         [TextArea] public string text;
-        public string[] answers; // варианты ответов
-        public int correctIndex; // индекс правильного ответа
+        [Header("Варианты ответов")] 
+        public string[] answers;
+        [Header("Индекс правильного ответа")]
+        public int correctIndex;
+        [Header("Пояснение")]
+        [TextArea] public string explanation;
     }
 }

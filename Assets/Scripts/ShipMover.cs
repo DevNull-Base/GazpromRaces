@@ -119,8 +119,31 @@ public class ShipMover : MonoBehaviour
     private IEnumerator BoostRoutine(float time, float multiplier)
     {
         boosting = true;
-        currentSpeed = baseSpeed * multiplier;
-        yield return new WaitForSeconds(time);
+    
+        float halfTime = time * 0.5f;
+        float startSpeed = baseSpeed;
+        float targetSpeed = baseSpeed * multiplier;
+    
+        // Плавное ускорение
+        float timer = 0f;
+        while (timer < halfTime)
+        {
+            timer += Time.deltaTime;
+            float t = timer / halfTime;
+            currentSpeed = Mathf.Lerp(startSpeed, targetSpeed, Mathf.SmoothStep(0f, 1f, t));
+            yield return null;
+        }
+    
+        // Плавное замедление
+        timer = 0f;
+        while (timer < halfTime)
+        {
+            timer += Time.deltaTime;
+            float t = timer / halfTime;
+            currentSpeed = Mathf.Lerp(targetSpeed, startSpeed, Mathf.SmoothStep(0f, 1f, t));
+            yield return null;
+        }
+    
         currentSpeed = baseSpeed;
         boosting = false;
     }
