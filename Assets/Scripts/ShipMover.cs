@@ -34,6 +34,7 @@ public class ShipMover : MonoBehaviour
     {
         NormalizedPosition = 0f;
         currentSpeed = baseSpeed;
+        boosting = false;
         isStaring = true;
     }
     
