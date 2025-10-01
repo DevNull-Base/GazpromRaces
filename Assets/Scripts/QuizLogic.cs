@@ -78,7 +78,7 @@ public class QuizLogic : MonoBehaviour
         else
         {
             delay = delayBetweenUnCorrectQuestions;
-            feedbackText = q.explanation;
+            feedbackText = "<color=orange>Твой ответ не верный, на самом деле:</color>\n" + q.explanation; 
             OnWrongAnswer?.Invoke();
         }
         
