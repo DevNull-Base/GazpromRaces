@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Data
 {
-    [CreateAssetMenu(fileName = "TestData", menuName = "Game/Test Data")]
+    [CreateAssetMenu(fileName = "Data", menuName = "Game/Test Data")]
     public class TestData : ScriptableObject
     {
         public Question[] questions;

@@ -8,7 +8,7 @@ public class ShipMover : MonoBehaviour
 {
     [Header("Spline")]
     public SplineContainer spline;
-    [SerializeField] private float normalizedPosition;
+    public float NormalizedPosition { get; private set; }
     public event Action<float> OnProgressChanged;
     public event Action OnRaceEnding;
 
@@ -32,7 +32,7 @@ public class ShipMover : MonoBehaviour
 
     public void StartingRace()
     {
-        normalizedPosition = 0f;
+        NormalizedPosition = 0f;
         currentSpeed = baseSpeed;
         isStaring = true;
     }
@@ -41,7 +41,7 @@ public class ShipMover : MonoBehaviour
     {
         isStaring = false;
         StopAllCoroutines();
-        normalizedPosition = 0f;
+        NormalizedPosition = 0f;
         currentSpeed = baseSpeed;
     }
 
@@ -55,20 +55,20 @@ public class ShipMover : MonoBehaviour
         float splineLength = spline.CalculateLength();
         float deltaT = (currentSpeed / splineLength) * Time.deltaTime;
         
-        normalizedPosition += deltaT;
+        NormalizedPosition += deltaT;
 
-        if (normalizedPosition > 1f)
+        if (NormalizedPosition > 1f)
         {
             OnRaceEnding?.Invoke();
             EndingRace();
         }
         
         
-        OnProgressChanged?.Invoke(normalizedPosition);
-        normalizedPosition = Mathf.Clamp01(normalizedPosition);
+        OnProgressChanged?.Invoke(NormalizedPosition);
+        NormalizedPosition = Mathf.Clamp01(NormalizedPosition);
 
-        Vector3 pos = spline.EvaluatePosition(normalizedPosition);
-        Vector3 tangent = spline.EvaluateTangent(normalizedPosition);
+        Vector3 pos = spline.EvaluatePosition(NormalizedPosition);
+        Vector3 tangent = spline.EvaluateTangent(NormalizedPosition);
         tangent.Normalize();
 
         transform.position = pos;
@@ -111,9 +111,9 @@ public class ShipMover : MonoBehaviour
         currentSpeed = baseSpeed * multiplier;
     }
     
-    public void Boost(float duration, float multiplier)
+    public void Boost(BoostConfig config)
     {
-        if (!boosting) StartCoroutine(BoostRoutine(duration, multiplier));
+        if (!boosting) StartCoroutine(BoostRoutine(config.duration, config.multiplier));
     }
 
     private IEnumerator BoostRoutine(float time, float multiplier)

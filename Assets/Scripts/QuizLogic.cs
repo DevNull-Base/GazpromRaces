@@ -10,12 +10,14 @@ public class QuizLogic : MonoBehaviour
 {
     [SerializeField] private TestData testData;
     [SerializeField] private int questionsPerSession = 5;
-    [SerializeField] private float delayBetweenQuestions = 2f;
+    [SerializeField] private float delayBetweenCorrectQuestions = 2f;
+    [SerializeField] private float delayBetweenUnCorrectQuestions = 5f;
     
     private List<Question> currentSessionQuestions;
+    private float delay;
     private int currentQuestionIndex = 0;
     private bool waitingForNextQuestion = false;
-    
+
     public event Action<Question> OnQuestionChanged;
     public event Action OnTestStarted;
     public event Action OnTestFinished;
@@ -69,11 +71,13 @@ public class QuizLogic : MonoBehaviour
         var q = currentSessionQuestions[currentQuestionIndex];
         if (answerIndex == q.correctIndex)
         {
+            delay = delayBetweenCorrectQuestions;
             feedbackText = "Молодец! Правильно!";
             OnCorrectAnswer?.Invoke();
         }
         else
         {
+            delay = delayBetweenUnCorrectQuestions;
             feedbackText = q.explanation;
             OnWrongAnswer?.Invoke();
         }
@@ -89,7 +93,7 @@ public class QuizLogic : MonoBehaviour
     
     private IEnumerator WaitAndNextQuestion()
     {
-        yield return new WaitForSeconds(delayBetweenQuestions);
+        yield return new WaitForSeconds(delay);
         NextQuestion();
     }
 }

@@ -13,13 +13,22 @@ public class QuizView : MonoBehaviour
     [SerializeField] private Image questionPanel;
     [SerializeField] private Image feedbackPanel;
     [SerializeField] private TMP_Text feedbackText;
-    
+    [SerializeField] private Image boostEffectPanel;
+
     private void OnEnable()
     {
         logic.OnQuestionChanged += RenderQuestion;
         logic.OnHideQuestionPanel += HidePanels;
         logic.OnShowQuestionPanel += ShowPanels;
+        logic.OnCorrectAnswer += PlayBoostEffect;
         logic.OnFeedback += ShowFeedback;
+    }
+
+    private void PlayBoostEffect()
+    {
+        var sq = DOTween.Sequence();
+        sq.Append(boostEffectPanel.DOFade(0.1f, 1f).SetEase(Ease.InSine));
+        sq.Append(boostEffectPanel.DOFade(0, 1f).SetEase(Ease.InSine));
     }
 
     private void OnDisable()
@@ -27,6 +36,7 @@ public class QuizView : MonoBehaviour
         logic.OnQuestionChanged -= RenderQuestion;
         logic.OnHideQuestionPanel -= HidePanels;
         logic.OnShowQuestionPanel -= ShowPanels;
+        logic.OnCorrectAnswer -= PlayBoostEffect;
         logic.OnFeedback -= ShowFeedback;
     }
 
@@ -54,15 +64,15 @@ public class QuizView : MonoBehaviour
 
     private void ShowPanels()
     {
-        ShowPanel(questionPanel);
         HidePanel(feedbackPanel);
+        ShowPanel(questionPanel);
     }
     
     private void HidePanel(Image panel)
     {
         if (panel != null)
         {
-            panel.DOFade(0f, 0.5f).SetEase(Ease.OutCubic);
+            panel.DOFade(0f, 0.1f).SetEase(Ease.OutCubic);
             panel.transform.DOScale(0.8f, 0.5f).SetEase(Ease.OutCubic);
         }
     }
@@ -71,7 +81,7 @@ public class QuizView : MonoBehaviour
     {
         if (panel != null)
         {
-            panel.DOFade(1f, 0.5f).SetEase(Ease.OutCubic);
+            panel.DOFade(1f, 0.1f).SetEase(Ease.OutCubic);
             panel.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
         }
     }
