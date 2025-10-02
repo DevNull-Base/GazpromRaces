@@ -15,4 +15,5 @@ public enum ScreenTypes
     Blank = 9,
     LevelSelect = 10,
     Look = 11,
+    Coupon = 12,
 }

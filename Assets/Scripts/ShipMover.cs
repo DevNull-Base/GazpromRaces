@@ -48,6 +48,7 @@ public class ShipMover : MonoBehaviour
     {
         NormalizedPosition = 0f;
         maxSpeed = defaultSpeed;
+        currentSpeed = 0f;
         boosting = false;
         isStaring = true;
     }
@@ -177,6 +178,7 @@ public class ShipMover : MonoBehaviour
     {
         StopAllCoroutines();
         maxSpeed = defaultSpeed * multiplier;
+        boosting = true;
     }
     
     public void Boost(BoostConfig config)
